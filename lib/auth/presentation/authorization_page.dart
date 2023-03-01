@@ -21,21 +21,25 @@ class _AuthorizationPageState extends State<AuthorizationPage> {
 
   @override
   void initState() {
-    webviewController = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(widget.authorizationUrl)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onNavigationRequest: (request) {
-            if (request.url
-                .startsWith(GithubAuthenticator.redirectUrl.toString())) {
-              widget.onAuthorizationCodeRedirectAttempt(Uri.parse(request.url));
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
-          },
-        ),
-      );
+    webviewController = WebViewController();
+    webviewController.clearCache();
+    WebViewCookieManager().clearCookies();
+
+    webviewController.loadRequest(widget.authorizationUrl);
+    webviewController.setJavaScriptMode(JavaScriptMode.unrestricted);
+    webviewController.setNavigationDelegate(
+      NavigationDelegate(
+        onNavigationRequest: (request) {
+          if (request.url
+              .startsWith(GithubAuthenticator.redirectUrl.toString())) {
+            widget.onAuthorizationCodeRedirectAttempt(Uri.parse(request.url));
+            return NavigationDecision.prevent;
+          }
+          return NavigationDecision.navigate;
+        },
+      ),
+    );
+
     super.initState();
   }
 
